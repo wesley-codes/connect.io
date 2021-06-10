@@ -48,242 +48,6 @@
 // //   }
 // // }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // For performing some operations asynchronously
 import 'dart:async';
 import 'dart:convert';
@@ -297,9 +61,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 import 'package:system_setting/system_setting.dart';
 
-void main() => runApp(
-  
-  MyApp());
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
@@ -444,15 +206,15 @@ class _BluetoothAppState extends State<BluetoothApp> {
       home: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text("Flutter Bluetooth"),
-          backgroundColor: Colors.deepPurple,
+          title: Text("Con_nect"),
+          backgroundColor: Colors.blue,
         ),
-        body: Container(
-          child: ListView(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            child: ListView(
+              children: <Widget>[
+                Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     Expanded(
@@ -471,7 +233,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
                           if (value) {
                             await FlutterBluetoothSerial.instance
                                 .requestEnable();
-                            SystemSetting.goto(SettingTarget.BLUETOOTH);
+                            // SystemSetting.goto(SettingTarget.BLUETOOTH);
                           } else {
                             await FlutterBluetoothSerial.instance
                                 .requestDisable();
@@ -493,9 +255,104 @@ class _BluetoothAppState extends State<BluetoothApp> {
                     )
                   ],
                 ),
-              ),
-              Homepage()
-            ],
+                // Homepage()
+
+                Stack(
+                  children: <Widget>[
+                    Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: Text(
+                            "PAIRED DEVICES",
+                            style: TextStyle(fontSize: 24, color: Colors.blue),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(
+                                'Device:',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              DropdownButton(
+                                isExpanded: true,
+                                items: _getDeviceItems(),
+                                onChanged: (value) =>
+                                    setState(() => _device = value),
+                                value: _devicesList.isNotEmpty ? _device : null,
+                              ),
+                              RaisedButton(
+                                onPressed: _isButtonUnavailable
+                                    ? null
+                                    : _connected
+                                        ? _disconnect
+                                        : _connect,
+                                child:
+                                    Text(_connected ? 'Disconnect' : 'Connect'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      side: new BorderSide(
+                        color: _deviceState == 0
+                            ? colors['neutralBorderColor']
+                            : _deviceState == 1
+                                ? colors['onBorderColor']
+                                : colors['offBorderColor'],
+                        width: 3,
+                      ),
+                      borderRadius: BorderRadius.circular(4.0),
+                    ),
+                    elevation: _deviceState == 0 ? 4 : 0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Text(
+                              "DEVICE 1",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: _deviceState == 0
+                                    ? colors['neutralTextColor']
+                                    : _deviceState == 1
+                                        ? colors['onTextColor']
+                                        : colors['offTextColor'],
+                              ),
+                            ),
+                          ),
+                          FlatButton(
+                            onPressed:
+                                _connected ? _sendOnMessageToBluetooth : null,
+                            child: Text("ON"),
+                          ),
+                          FlatButton(
+                            onPressed:
+                                _connected ? _sendOffMessageToBluetooth : null,
+                            child: Text("OFF"),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -640,4 +497,3 @@ class _BluetoothAppState extends State<BluetoothApp> {
     );
   }
 }
-
