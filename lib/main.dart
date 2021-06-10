@@ -199,6 +199,8 @@ class _BluetoothAppState extends State<BluetoothApp> {
     });
   }
 
+  List<String> _deviceList = ['A', 'B', 'C', 'D', 'E'];
+
   // Now, its time to build the UI
   @override
   Widget build(BuildContext context) {
@@ -304,53 +306,60 @@ class _BluetoothAppState extends State<BluetoothApp> {
                   ],
                 ),
 
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      side: new BorderSide(
-                        color: _deviceState == 0
-                            ? colors['neutralBorderColor']
-                            : _deviceState == 1
-                                ? colors['onBorderColor']
-                                : colors['offBorderColor'],
-                        width: 3,
+                ListView.builder(
+                  itemBuilder: (_, index) => Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        side: new BorderSide(
+                          color: _deviceState == 0
+                              ? colors['neutralBorderColor']
+                              : _deviceState == 1
+                                  ? colors['onBorderColor']
+                                  : colors['offBorderColor'],
+                          width: 3,
+                        ),
+                        borderRadius: BorderRadius.circular(4.0),
                       ),
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                    elevation: _deviceState == 0 ? 4 : 0,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: Text(
-                              "DEVICE 1",
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: _deviceState == 0
-                                    ? colors['neutralTextColor']
-                                    : _deviceState == 1
-                                        ? colors['onTextColor']
-                                        : colors['offTextColor'],
+                      elevation: _deviceState == 0 ? 4 : 0,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Text(
+                                _deviceList[index],
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: _deviceState == 0
+                                      ? colors['neutralTextColor']
+                                      : _deviceState == 1
+                                          ? colors['onTextColor']
+                                          : colors['offTextColor'],
+                                ),
                               ),
                             ),
-                          ),
-                          FlatButton(
-                            onPressed:
-                                _connected ? _sendOnMessageToBluetooth : null,
-                            child: Text("ON"),
-                          ),
-                          FlatButton(
-                            onPressed:
-                                _connected ? _sendOffMessageToBluetooth : null,
-                            child: Text("OFF"),
-                          ),
-                        ],
+                            FlatButton(
+                              onPressed: _connected
+                                  ? handleDeviceState(
+                                      _deviceList[index].toString() + "1")
+                                  : null,
+                              child: Text("ON"),
+                            ),
+                            FlatButton(
+                              onPressed: _connected
+                                  ? handleDeviceState(
+                                      _deviceList[index].toString() + "0")
+                                  : null,
+                              child: Text("OFF"),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
+                  itemCount: 5,
+                )
               ],
             ),
           ),
@@ -462,6 +471,15 @@ class _BluetoothAppState extends State<BluetoothApp> {
   // for turning the Bluetooth device on
   void _sendOnMessageToBluetooth() async {
     connection.output.add(utf8.encode("1" + "\r\n"));
+    await connection.output.allSent;
+    show('Device Turned On');
+    setState(() {
+      _deviceState = 1; // device on
+    });
+  }
+
+  handleDeviceState(String signal) async {
+    connection.output.add(utf8.encode(signal + "\r\n"));
     await connection.output.allSent;
     show('Device Turned On');
     setState(() {
